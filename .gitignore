@@ -1,0 +1,7 @@
+.vscode
+lex.yy.*
+y.tab.*
+*.o
+stack.hh
+p4ltlparser
+*input.txt
