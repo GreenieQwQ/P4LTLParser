@@ -1,17 +1,20 @@
-
-
-%option noyywrap
+%option c++ interactive noyywrap noyylineno nodefault
+%option outfile="p4ltlScanner.cpp"
 
 %x PREDICATE
 
 %{
-  #include <iostream>
   #include <cstdio>
-  #include <cstring>
-  #include "y.tab.h"
+  #include <cstdlib>
+  #include "p4ltlParser.hpp"
+  #include "p4ltlScanner.hpp"
+  #undef  YY_DECL
+  #define YY_DECL int P4LTL::Scanner::lex(P4LTL::Parser::semantic_type *yylval)
+
   int parens = 0;
 
   void echoToken(const char* yytext);
+  typedef P4LTL::Parser::token token;
 %}
 
 LineTerminator \r|\n|\r\n
@@ -23,63 +26,77 @@ DecIntegerLiteral 0|[1-9][0-9]*
 HexIntegerLiteral [0][xX][0-9a-fA-F]+
 
 %%
-<INITIAL>"("					{echoToken(yytext); return LPAR; }
-<INITIAL>")"					{echoToken(yytext); return RPAR; }
+<INITIAL>"("					{echoToken(yytext); return token::LPAR; }
+<INITIAL>")"					{echoToken(yytext); return token::RPAR; }
 
-<INITIAL>"AP"				{echoToken(yytext); BEGIN(PREDICATE); return AP; }
+<INITIAL>"AP"				{echoToken(yytext); BEGIN(PREDICATE); return token::AP; }
 
-<INITIAL>"[]"				{echoToken(yytext); return ALWAYS; }
-<INITIAL>"<>"				{echoToken(yytext); return EVENTUALLY; }
-<INITIAL>"U"					{echoToken(yytext); return UNTIL; }
-<INITIAL>"W"					{echoToken(yytext); return WEAKUNTIL; }
-<INITIAL>"R"					{echoToken(yytext); return RELEASE; }
-<INITIAL>"&&"				{echoToken(yytext); return AND; }
-<INITIAL>"||"				{echoToken(yytext); return OR; }
-<INITIAL>"==>"				{echoToken(yytext); return IMPLIES; }
-<INITIAL>"X"					{echoToken(yytext); return NEXT; }
-<INITIAL>"!"					{echoToken(yytext); return NEG; }
+<INITIAL>"[]"				{echoToken(yytext); return token::ALWAYS; }
+<INITIAL>"<>"				{echoToken(yytext); return token::EVENTUALLY; }
+<INITIAL>"U"					{echoToken(yytext); return token::UNTIL; }
+<INITIAL>"W"					{echoToken(yytext); return token::WEAKUNTIL; }
+<INITIAL>"R"					{echoToken(yytext); return token::RELEASE; }
+<INITIAL>"&&"				{echoToken(yytext); return token::AND; }
+<INITIAL>"||"				{echoToken(yytext); return token::OR; }
+<INITIAL>"==>"				{echoToken(yytext); return token::IMPLIES; }
+<INITIAL>"X"					{echoToken(yytext); return token::NEXT; }
+<INITIAL>"!"					{echoToken(yytext); return token::NEG; }
 
 <INITIAL>{ws}    			{/* ignore */ }
-<INITIAL>{Identifier}    	{echoToken(yytext); yylval.str = strdup(yytext); return NAME; }
+<INITIAL>{Identifier}    	{echoToken(yytext); yylval->emplace<const char*>(strdup(yytext)); return token::NAME; }
 
-<PREDICATE>"("						{echoToken(yytext); parens++; return LPAR; }
-<PREDICATE>"=="					{echoToken(yytext); return EQ; }
-<PREDICATE>"<="					{echoToken(yytext); return LEQ; }
-<PREDICATE>">="					{echoToken(yytext); return GEQ; }
-<PREDICATE>">"						{echoToken(yytext); return GT; }
-<PREDICATE>"<"						{echoToken(yytext); return LT; }
-<PREDICATE>"!="					{echoToken(yytext); return NEQ; }
-<PREDICATE>")"						{echoToken(yytext); parens--; if(parens == 0) { BEGIN(INITIAL); } return RPAR; }
-<PREDICATE>","						{echoToken(yytext); return COMMA; }
-<PREDICATE>"old"					{echoToken(yytext); return OLD; }
-<PREDICATE>"Key"					{echoToken(yytext); return KEY; }
-<PREDICATE>"+"						{echoToken(yytext); return PLUS; }
-<PREDICATE>"-"						{echoToken(yytext); return MINUS; }
-<PREDICATE>"*"						{echoToken(yytext); return MULTIPLY; }
-<PREDICATE>"!"						{echoToken(yytext); return NEG; }
-<PREDICATE>"&&"					{echoToken(yytext); return AND; }
-<PREDICATE>"||"					{echoToken(yytext); return OR; }
-<PREDICATE>"==>"					{echoToken(yytext); return IMPLIES; }
-<PREDICATE>"true"					{echoToken(yytext); return TRUE; }
-<PREDICATE>"false"					{echoToken(yytext); return FALSE; }
-<PREDICATE>"fwd"					{echoToken(yytext); return FWD; }
-<PREDICATE>"drop"					{echoToken(yytext); return DROP; }
-<PREDICATE>"valid"					{echoToken(yytext); return VALID; }
-<PREDICATE>"apply"					{echoToken(yytext); return APPLY; }
-<PREDICATE>"["						{echoToken(yytext); return LBRACKET; }
-<PREDICATE>"]"						{echoToken(yytext); return RBRACKET; }
+<PREDICATE>"("						{echoToken(yytext); parens++; return token::LPAR; }
+<PREDICATE>"=="					{echoToken(yytext); return token::EQ; }
+<PREDICATE>"<="					{echoToken(yytext); return token::LEQ; }
+<PREDICATE>">="					{echoToken(yytext); return token::GEQ; }
+<PREDICATE>">"						{echoToken(yytext); return token::GT; }
+<PREDICATE>"<"						{echoToken(yytext); return token::LT; }
+<PREDICATE>"!="					{echoToken(yytext); return token::NEQ; }
+<PREDICATE>")"						{echoToken(yytext); parens--; if(parens == 0) { BEGIN(INITIAL); } return token::RPAR; }
+<PREDICATE>","						{echoToken(yytext); return token::COMMA; }
+<PREDICATE>"old"					{echoToken(yytext); return token::OLD; }
+<PREDICATE>"Key"					{echoToken(yytext); return token::KEY; }
+<PREDICATE>"+"						{echoToken(yytext); return token::PLUS; }
+<PREDICATE>"-"						{echoToken(yytext); return token::MINUS; }
+<PREDICATE>"*"						{echoToken(yytext); return token::MULTIPLY; }
+<PREDICATE>"!"						{echoToken(yytext); return token::NEG; }
+<PREDICATE>"&&"					{echoToken(yytext); return token::AND; }
+<PREDICATE>"||"					{echoToken(yytext); return token::OR; }
+<PREDICATE>"==>"					{echoToken(yytext); return token::IMPLIES; }
+<PREDICATE>"true"					{echoToken(yytext); return token::TRUE; }
+<PREDICATE>"false"					{echoToken(yytext); return token::FALSE; }
+<PREDICATE>"fwd"					{echoToken(yytext); return token::FWD; }
+<PREDICATE>"drop"					{echoToken(yytext); return token::DROP; }
+<PREDICATE>"valid"					{echoToken(yytext); return token::VALID; }
+<PREDICATE>"apply"					{echoToken(yytext); return token::APPLY; }
+<PREDICATE>"["						{echoToken(yytext); return token::LBRACKET; }
+<PREDICATE>"]"						{echoToken(yytext); return token::RBRACKET; }
 
 <PREDICATE>{ws}    				{/* ignore */ }
-<PREDICATE>{Header}	    		{echoToken(yytext); yylval.str = strdup(yytext); return NAME; }
-<PREDICATE>{HexIntegerLiteral}		{echoToken(yytext); yylval.integer = std::strtol(yytext, nullptr, 16); return INT; }
-<PREDICATE>{DecIntegerLiteral}		{echoToken(yytext); yylval.integer = std::strtol(yytext, nullptr, 10); return INT; }
+<PREDICATE>{Header}	    		{echoToken(yytext); yylval->emplace<const char*>(strdup(yytext)); return token::NAME; }
+<PREDICATE>{HexIntegerLiteral}		{echoToken(yytext); yylval->emplace<int>(std::strtol(yytext, nullptr, 16)); return token::INT; }
+<PREDICATE>{DecIntegerLiteral}		{echoToken(yytext); yylval->emplace<int>(std::strtol(yytext, nullptr, 10)); return token::INT; }
 
- 
-<<EOF>>                 {echoToken(yytext); return EOF; }
 
 %%
 
+// note: not <<EOF>> processing
+
+int yyFlexLexer::yylex() {
+    throw std::runtime_error("Bad call to yyFlexLexer::yylex()");
+}
+
 void echoToken(const char* yytext)
 {
-  std::cout << "Token: " << yytext << std::endl;
+  printf("Token: %s\n", yytext);
+}
+
+int main() {
+  P4LTL::Scanner scanner{ std::cin, std::cerr };
+  P4LTL::Parser parser{ &scanner };
+  parser.parse();
+  if(P4LTL::root)
+	std::cout << P4LTL::root->toString() << std::endl;
+  else
+	std::cout << "Root is empty, yet why?" << std::endl;
 }

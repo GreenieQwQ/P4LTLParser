@@ -1,31 +1,33 @@
-// Set up identifiers.
-/* %defines
-%define api.identifierspace {P4LTL}
-%define parser_class_identifier {P4LTLParser} */
+%require "3.0.0"
+%language "C++"
+%defines "p4ltlParser.hpp"
+%output "p4ltlParser.cpp"
 
-// Types
-%union
-{
-    int integer;
-    const char* str;
-    AstNode* ast;
-}
+%define api.parser.class {Parser}
+%define api.namespace {P4LTL}
+%define api.value.type variant
+%parse-param {Scanner* scanner}
 
 // Enable verbose error reporting.
 %define parse.error verbose
 
-%code requires { /* -*-C++-*- */
+%code requires {
 #include <iostream>
 #include <string>
 #include "p4ltlast.hpp"
-// function prototypes, we need the yylex return prototype so C++ won't complain
-int yylex();
-void yyerror(const char * s);
+namespace P4LTL
+{
+    class Scanner;
+    static AstNode* root = nullptr;
 }
+}   // end %code
 
-%{
-AstNode* root = nullptr;
-%}
+%code
+{
+    #include "p4ltlScanner.hpp"    
+    #undef yylex
+    #define yylex(x) scanner->lex(x)
+}
 
 // exprinals (tokens returned by the scanner)
 %token AP COMMA LPAR RPAR LBRACKET RBRACKET 
@@ -34,11 +36,11 @@ AstNode* root = nullptr;
 %token AND OR IMPLIES NEG EQ NEQ
 %token PLUS MINUS GT GEQ LT LEQ
 %token OLD KEY TRUE FALSE
-%token<str>     NAME
-%token<integer> INT
+%token<const char*>     NAME
+%token<int> INT
 
 // Non-exprinals
-%type<ast>  texpr predicate term identifier p4ltl
+%type<AstNode*>  texpr predicate term identifier p4ltl
 
 // precedence
 %right IMPLIES
@@ -173,12 +175,16 @@ identifier
 	{$$ = new Name($1); };	
 
 %%
-void yyerror (const char *message)
+/* void yyerror (const char *message)
 {
 	fprintf(stderr, "Error: %s\n", message);
+} */
+
+void P4LTL::Parser::error(const std::string& msg) {
+    std::cerr << msg << '\n';
 }
 
-int main()
+/* int main()
 {
     yyparse();
     // std::cout << "Parse result: " <<  yyparse() << std::endl;
@@ -186,4 +192,4 @@ int main()
         std::cout << "P4LTL: " + root->toString() << std::endl;
     else
         std::cout << "Root is empty. But Why?" << std::endl;
-}
+} */

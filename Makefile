@@ -6,18 +6,14 @@ YACC= bison
 YFLAGS= -d -t -y
 OUT=p4ltlparser
 
-p4ltlparser: y.tab.o lex.yy.o p4ltlast.o
-	${CCC} ${CCFLAGS} lex.yy.o y.tab.o p4ltlast.o -o ${OUT}
+p4ltlparser: p4ltlParser.cpp p4ltlScanner.cpp
+	${CCC} -o ${OUT} p4ltlParser.cpp p4ltlScanner.cpp p4ltlast.cpp 
 
-p4ltlast.o: p4ltlast.cpp p4ltlast.hpp
-	${CCC} -c p4ltlast.cpp
-y.tab.o: p4ltlparser.ypp
-	${YACC} ${YFLAGS} p4ltlparser.ypp
-	${CCC} ${CCFLAGS} y.tab.c -c 
+p4ltlParser.cpp: p4ltlparser.ypp
+	${YACC} p4ltlparser.ypp
 
-lex.yy.o: p4ltllexer.ll
-	${LEX} $(LFLAGS) p4ltllexer.ll
-	${CCC} ${CCFLAGS} lex.yy.c -c 
+p4ltlScanner.cpp: p4ltllexer.ll
+	${LEX} p4ltllexer.ll
 
 run:
 	@echo "Running parser. Type in <CTRL + D> to stop."
@@ -25,4 +21,4 @@ run:
 
 .PHONY : clean
 clean:
-	rm -f lex.yy.* y.tab.* *.o stack.hh
+	rm -f lex.yy.* y.tab.* *.o stack.hh p4ltlScanner.cpp p4ltlParser.cpp
