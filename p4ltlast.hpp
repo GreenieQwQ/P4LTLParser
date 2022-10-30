@@ -5,7 +5,9 @@
 #include <vector>
 #include <stdexcept>
 
-class AstNode
+namespace P4LTL
+{
+    class AstNode
 {
 private:
     std::vector<AstNode*> outgoingNodes;
@@ -262,7 +264,7 @@ public:
     ArrayAccessExprssion(AstNode* name, AstNode* accessor);
     ArrayAccessExprssion(AstNode* name, AstNode* accessor1, AstNode* accessor2);
 };
-
+}
 
 
 #endif

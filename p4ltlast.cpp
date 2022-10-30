@@ -1,6 +1,8 @@
 #include "p4ltlast.hpp"
 
-// Class ASTNode
+namespace P4LTL
+{
+    // Class ASTNode
 const std::vector<AstNode*>& AstNode::getOutgoingNodes() const
 {
     return this->outgoingNodes;
@@ -483,4 +485,5 @@ ArrayAccessExprssion::ArrayAccessExprssion(AstNode* name, AstNode* accessor1, As
     this->addOutgoing(name);
     this->addOutgoing(accessor1);
     this->addOutgoing(accessor2);
+}
 }

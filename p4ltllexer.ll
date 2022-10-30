@@ -88,15 +88,6 @@ int yyFlexLexer::yylex() {
 
 void echoToken(const char* yytext)
 {
-  printf("Token: %s\n", yytext);
-}
-
-int main() {
-  P4LTL::Scanner scanner{ std::cin, std::cerr };
-  P4LTL::Parser parser{ &scanner };
-  parser.parse();
-  if(P4LTL::root)
-	std::cout << P4LTL::root->toString() << std::endl;
-  else
-	std::cout << "Root is empty, yet why?" << std::endl;
+  // only for debug
+  // printf("Token: %s\n", yytext);
 }

@@ -6,7 +6,8 @@
 %define api.parser.class {Parser}
 %define api.namespace {P4LTL}
 %define api.value.type variant
-%parse-param {Scanner* scanner}
+%parse-param {Scanner& scanner}
+%parse-param {AstNode*& root}
 
 // Enable verbose error reporting.
 %define parse.error verbose
@@ -18,7 +19,7 @@
 namespace P4LTL
 {
     class Scanner;
-    static AstNode* root = nullptr;
+    // static AstNode* root = nullptr;
 }
 }   // end %code
 
@@ -26,7 +27,7 @@ namespace P4LTL
 {
     #include "p4ltlScanner.hpp"    
     #undef yylex
-    #define yylex(x) scanner->lex(x)
+    #define yylex(x) scanner.lex(x)
 }
 
 // exprinals (tokens returned by the scanner)
