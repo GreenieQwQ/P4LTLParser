@@ -7,3 +7,6 @@ p4ltlparser
 *input.txt
 test*
 example
+p4ltlParser.cpp
+p4ltlParser.hpp
+p4ltlScanner.cpp

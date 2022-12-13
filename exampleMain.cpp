@@ -36,7 +36,7 @@ vector<P4LTLAtomicProposition*> getAllAP(AstNode* root)
 
 int main() {
     // can parse any number of strings
-    string p4ltl1 = "[](AP(drop))";
+    string p4ltl1 = "[](AP(hdr.ether == 0xffffffffffff * 2 + 3 / hdr.test))";
     string p4ltl2 = "Error!!!";
     string p4ltl3 = "[](AP(!drop) ==> AP((old(hdr.ipv4.ttl) != 0 && hdr.ipv4.ttl == old(hdr.ipv4.ttl) - 1) || (old(hdr.ipv4.ttl) == 0 && hdr.ipv4.ttl == 255)))";
     vector<string> strings = {p4ltl1, p4ltl2, p4ltl3};

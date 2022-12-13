@@ -59,6 +59,7 @@ HexIntegerLiteral [0][xX][0-9a-fA-F]+
 <PREDICATE>"+"						{echoToken(yytext); return token::PLUS; }
 <PREDICATE>"-"						{echoToken(yytext); return token::MINUS; }
 <PREDICATE>"*"						{echoToken(yytext); return token::MULTIPLY; }
+<PREDICATE>"/"						{echoToken(yytext); return token::DIVIDE; }
 <PREDICATE>"!"						{echoToken(yytext); return token::NEG; }
 <PREDICATE>"&&"					{echoToken(yytext); return token::AND; }
 <PREDICATE>"||"					{echoToken(yytext); return token::OR; }
@@ -74,8 +75,8 @@ HexIntegerLiteral [0][xX][0-9a-fA-F]+
 
 <PREDICATE>{ws}    				{/* ignore */ }
 <PREDICATE>{Header}	    		{echoToken(yytext); yylval->emplace<const char*>(strdup(yytext)); return token::NAME; }
-<PREDICATE>{HexIntegerLiteral}		{echoToken(yytext); yylval->emplace<int>(std::strtol(yytext, nullptr, 16)); return token::INT; }
-<PREDICATE>{DecIntegerLiteral}		{echoToken(yytext); yylval->emplace<int>(std::strtol(yytext, nullptr, 10)); return token::INT; }
+<PREDICATE>{HexIntegerLiteral}		{echoToken(yytext); yylval->emplace<unsigned long long int>(std::strtoull(yytext, nullptr, 16)); return token::INT; }
+<PREDICATE>{DecIntegerLiteral}		{echoToken(yytext); yylval->emplace<unsigned long long int>(std::strtoull(yytext, nullptr, 10)); return token::INT; }
 
 
 %%
